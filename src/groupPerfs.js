@@ -56,8 +56,8 @@ module.exports.stats = function(event, content, cb) {
 
 module.exports.create = function(event, content, cb) {
   var data = event.body;
-  if (!data || !data.urls || !data.links) {
-    return cb(new Error('[400] Missing or invalid urls/links properties in body'));
+  if (!data || !data.analysisId || !data.urls || !data.links) {
+    return cb(new Error('[400] Missing analysisId, urls or links properties in body'));
   }
 
   var info = platform.parse(event.userAgent);
@@ -66,6 +66,7 @@ module.exports.create = function(event, content, cb) {
     TableName: 'galaxy-monitoring-groupPerfs',
     Item: {
       date: new Date().toISOString(),
+      analysisId: data.analysisId,
       urls: Number.parseInt(data.urls, 10),
       links: Number.parseInt(data.links, 10),
       ip: event.ip,
