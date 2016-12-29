@@ -1,5 +1,6 @@
 'use strict';
 
+var platform = require('platform');
 var AWS = require('aws-sdk');
 var dynamoDb = new AWS.DynamoDB.DocumentClient();
 
@@ -26,12 +27,17 @@ module.exports.post = function(event, content, cb) {
     return cb(new Error('[400] Missing or invalid urls/links properties in body'));
   }
 
+  var info = platform.parse(event.userAgent);
+
   var params = {
     TableName: 'galaxy-monitoring-groupPerfs',
     Item: {
       date: new Date().toISOString(),
       urls: Number.parseInt(data.urls, 10),
-      links: Number.parseInt(data.links, 10)
+      links: Number.parseInt(data.links, 10),
+      ip: event.ip,
+      os: info.os ? info.os.toString() : null,
+      browser: info.name + ' ' + info.version,
     },
   };
 
