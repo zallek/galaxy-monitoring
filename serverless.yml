@@ -1,0 +1,47 @@
+service: galaxy-monitoring
+
+provider:
+  name: aws
+  runtime: nodejs4.3
+  profile: perso
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:Scan
+        - dynamodb:GetItem
+      Resource: "arn:aws:dynamodb:eu-west-1:*:*"
+
+functions:
+  post:
+    handler: src/groupPerfs.post
+    events:
+      - http:
+          path: group-perfs
+          method: POST
+          cors: true
+          request:
+            template:
+              application/json: '{ "body": "$input.json(''$'')" }'
+    memorySize: 128
+
+resources:
+  Resources:
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: groupPerfs
+        AttributeDefinitions:
+          - AttributeName: date
+            AttributeType: S
+          - AttributeName: urls
+            AttributeType: N
+          - AttributeName: links
+            AttributeType: N
+        KeySchema:
+          - AttributeName: date
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
