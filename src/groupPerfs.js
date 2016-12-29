@@ -5,26 +5,25 @@ var dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 
 module.exports.post = function(event, content, cb) {
-  var data = JSON.parse(event.body);
-
+  var data = event.body;
   if (!data || !data.urls || !data.links) {
-    return cb('Bad Request');
+    return cb(new Error('[400] Missing or invalid urls/links properties in body'));
   }
 
   var params = {
-    TableName: 'groupPerfs',
+    TableName: 'galaxy-monitoring-groupPerfs',
     Item: {
       date: new Date().toISOString(),
-      urls: data.urls,
-      links: data.links,
+      urls: Number.parseInt(data.urls, 10),
+      links: Number.parseInt(data.links, 10)
     },
   };
 
   dynamoDb.put(params, function(err, data) {
     if (err) {
-			return cb('Unexpected Error - dynamoDb put');
+			return cb(new Error('[500] Error on dynamoDb put'));
 		} else {
-			return cb(null);
+			return cb();
 		}
 	});
 };

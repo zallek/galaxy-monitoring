@@ -4,6 +4,7 @@ provider:
   name: aws
   runtime: nodejs4.3
   profile: perso
+  region: eu-west-1
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -21,10 +22,11 @@ functions:
       - http:
           path: group-perfs
           method: POST
+          integration: lambda
           cors: true
           request:
             template:
-              application/json: '{ "body": "$input.json(''$'')" }'
+              application/json: '{ "body": $input.json(''$'') }'
     memorySize: 128
 
 resources:
@@ -32,16 +34,13 @@ resources:
     usersTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: groupPerfs
+        TableName: galaxy-monitoring-groupPerfs
         AttributeDefinitions:
           - AttributeName: date
             AttributeType: S
-          - AttributeName: urls
-            AttributeType: N
-          - AttributeName: links
-            AttributeType: N
         KeySchema:
           - AttributeName: date
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
