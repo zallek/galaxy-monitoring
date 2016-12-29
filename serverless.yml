@@ -16,6 +16,15 @@ provider:
       Resource: "arn:aws:dynamodb:eu-west-1:*:*"
 
 functions:
+  get:
+    handler: src/groupPerfs.get
+    events:
+      - http:
+          path: group-perfs
+          method: GET
+          integration: lambda
+          cors: true
+    memorySize: 128
   post:
     handler: src/groupPerfs.post
     events:

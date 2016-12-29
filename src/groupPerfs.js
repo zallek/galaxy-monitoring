@@ -4,6 +4,22 @@ var AWS = require('aws-sdk');
 var dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 
+module.exports.get = function(event, content, cb) {
+  var params = {
+    TableName: 'galaxy-monitoring-groupPerfs',
+    Limit: 30,
+  };
+
+  dynamoDb.scan(params, function(err, data) {
+    if (err) {
+      return cb(new Error('[500] Error on dynamoDb read'));
+    } else {
+      return cb(null, data.Items);
+    }
+  });
+};
+
+
 module.exports.post = function(event, content, cb) {
   var data = event.body;
   if (!data || !data.urls || !data.links) {
@@ -23,7 +39,7 @@ module.exports.post = function(event, content, cb) {
     if (err) {
 			return cb(new Error('[500] Error on dynamoDb put'));
 		} else {
-			return cb();
+			return cb(null);
 		}
 	});
 };
